@@ -1,3 +1,16 @@
+Differences in Fork
+===================
+
+This fork adds a limit parameter to limit the result set of the georadius and georadiusbymember methods of the geo.so package. 
+
+**georadius** *geoset latitude longitude radius units [withdistance] [withcoordinates] [withhash] [withgeojson] [withgeojsoncollection] [noproperties] [asc|desc] [limit:10]*
+
+Example usage:
+
+```
+georadius nyc 40.7598464 -73.9798091 3 km withdistance descending limit:10
+```
+
 krmt: Kit of Redis Module Tools
 ===============================
 

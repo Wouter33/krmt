@@ -27,6 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "geo.h"
 #include "geohash_helper.h"
 #include "geojson.h"
@@ -40,7 +43,7 @@
  *   - geoadd - add coordinates for value to geoset
  *   - georadius - search radius by coordinates in geoset
  *   - georadiusbymember - search radius based on geoset member position
- *   - geoencode - encode coordinates to a geohash integer
+*   - geoencode - encode coordinates to a geohash integer
  *   - geodecode - decode geohash integer to representative coordinates
  * ==================================================================== */
 
@@ -438,6 +441,8 @@ static void geoRadiusGeneric(redisClient *c, int type) {
          withgeojson = false, withgeojsonbounds = false,
          withgeojsoncollection = false, noproperties = false;
     int sort = SORT_NONE;
+    int limit_num = 0;
+  
     if (c->argc > base_args) {
         int remaining = c->argc - base_args;
         for (int i = 0; i < remaining; i++) {
@@ -446,6 +451,8 @@ static void geoRadiusGeneric(redisClient *c, int type) {
                 withdist = true;
             else if (!strcasecmp(arg, "withhash"))
                 withhash = true;
+            else if (!strncasecmp(arg, "limit", 5))    
+                sscanf( arg, "limit:%d", &limit_num );
             else if (!strncasecmp(arg, "withcoord", 9))
                 withcoords = true;
             else if (!strncasecmp(arg, "withgeojsonbound", 16))
@@ -518,7 +525,14 @@ static void geoRadiusGeneric(redisClient *c, int type) {
      * all strings of just zset members  *or* a nested multi-bulk reply
      * containing the zset member string _and_ all the additional options the
      * user enabled for this request. */
-    addReplyMultiBulkLen(c, result_length + withgeojsoncollection);
+     
+     int loop_num = 0;
+     if(limit_num != 0)
+         loop_num = limit_num;    
+     else 
+        loop_num = result_length;
+     
+    addReplyMultiBulkLen(c, loop_num + withgeojsoncollection);
 
     /* Iterate over results, populate struct used for sorting and result sending
      */
@@ -547,7 +561,7 @@ static void geoRadiusGeneric(redisClient *c, int type) {
     }
 
     /* Finally send results back to the caller */
-    for (int i = 0; i < result_length; i++) {
+    for (int i = 0; i < loop_num; i++) {
         struct zipresult *zr = gp[i].userdata;
 
         /* If we have options in option_length, return each sub-result
