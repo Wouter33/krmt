@@ -101,7 +101,7 @@ cd redis
 git checkout dynamic-redis-2.8
 make
 cd ..
-git clone https://github.com/mattsta/krmt
+git clone https://github.com/wouter33/krmt
 cd krmt
 make clean; make -j
 ```
