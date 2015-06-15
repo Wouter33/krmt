@@ -8,8 +8,10 @@ This fork adds a limit parameter to limit the result set of the georadius and ge
 Example usage:
 
 ```
-georadius nyc 40.7598464 -73.9798091 3 km withdistance descending limit:10
+georadius nyc 40.7598464 -73.9798091 30 km withdistance descending limit:10
 ```
+
+*Limit does not prevent Redis from scanning the whole radius for matches, it only limits the result set sent from Redis to the client. This could be beneficial for larger result sets when Redis client and server run on different hosts.*
 
 krmt: Kit of Redis Module Tools
 ===============================
